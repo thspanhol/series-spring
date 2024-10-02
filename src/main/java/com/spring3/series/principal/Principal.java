@@ -9,10 +9,7 @@ import com.spring3.series.service.ConverteDados;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Principal {
@@ -49,33 +46,63 @@ public class Principal {
 
         //temporadas.forEach(t -> t.episodios().forEach(e -> System.out.println("T-" + t.numero() + "-EP-" + e.numero() + " " + e.titulo())));
 
+
         List<DadosEpisodio> dadosEpisodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream())
                 .collect(Collectors.toList()); // Permite novos registros futuros
                 //.toList(); // Imutável
 
-        System.out.println("Top 5 Episódios:");
 
+        // Lista com a Classe Episodio
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
-                        .map(d -> new Episodio(t.numero(), d)))
+                .map(d -> new Episodio(t.numero(), d)))
                 .collect(Collectors.toList());
 
-        episodios.stream()
-                .sorted(Comparator.comparing(Episodio::getAvaliacao).reversed())
-                .limit(5)
-                .forEach(System.out::println);
+        // Faz média da nota por temporada
+        Map<Integer, Double> avaliacoesPorTemporada = episodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.groupingBy(Episodio::getTemporada,
+                        Collectors.averagingDouble(Episodio::getAvaliacao)));
+        System.out.println("Média por temporadas: " + avaliacoesPorTemporada);
 
-        System.out.println("A partir de qual ano deseja ver os episódios?");
-        var ano = leitura.nextInt();
-        LocalDate dataBusca = LocalDate.of(ano, 1, 1);
+        // Classe SummaryStatistics para coletar dados (contador, soma, minimo, média, maximo)
+        DoubleSummaryStatistics est = episodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.summarizingDouble(Episodio::getAvaliacao));
 
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        System.out.println(est);
 
-        episodios.stream()
-                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
-                .forEach(e -> System.out.println(
-                        "Temporada:" + e.getTemporada() + " Episódio:" + e.getNumeroEpisodio() + " " + e.getTitulo() + " (" + e.getDataLancamento().format(formatador) + ")."
-                ));
+        //Procura episódio informado
+//        System.out.println("Informe o episódio que deseja buscar: ");
+//        var buscaEpisodio = leitura.nextLine();
+//        Optional<Episodio> episodioBuscado = episodios.stream()
+//                .filter(e -> e.getTitulo().toLowerCase().contains(buscaEpisodio.toLowerCase()))
+//                .findFirst();
+//
+//        episodioBuscado.ifPresent(e -> System.out.println("Episódio encontrado: " + e.getTitulo()));
+//        if (episodioBuscado.isEmpty()) System.out.println("Episódio não encontrado.");
+
+        // TOP 5 EPISODIOS
+//        System.out.println("Top 5 Episódios:");
+//
+//        episodios.stream()
+//                .sorted(Comparator.comparing(Episodio::getAvaliacao).reversed())
+//                .limit(5)
+//                //.peek(p -> System.out.println("Peek: " + p)) Percorre a etapa da Stream logando o processo
+//                .forEach(System.out::println);
+
+// FILTRA PELO ANO
+//        System.out.println("A partir de qual ano deseja ver os episódios?");
+//        var ano = leitura.nextInt();
+//        LocalDate dataBusca = LocalDate.of(ano, 1, 1);
+//
+//        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//
+//        episodios.stream()
+//                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
+//                .forEach(e -> System.out.println(
+//                        "Temporada:" + e.getTemporada() + " Episódio:" + e.getNumeroEpisodio() + " " + e.getTitulo() + " (" + e.getDataLancamento().format(formatador) + ")."
+//                ));
     }
 }
