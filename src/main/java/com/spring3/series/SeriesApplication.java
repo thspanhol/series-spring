@@ -4,8 +4,10 @@ import com.spring3.series.model.DadosEpisodio;
 import com.spring3.series.model.DadosSerie;
 import com.spring3.series.model.DadosTemporada;
 import com.spring3.series.principal.Principal;
+import com.spring3.series.repository.SerieRepository;
 import com.spring3.series.service.ConsumoAPI;
 import com.spring3.series.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +17,9 @@ import java.util.List;
 
 @SpringBootApplication
 public class SeriesApplication implements CommandLineRunner {
+
+	@Autowired
+	private SerieRepository repositorio;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SeriesApplication.class, args);
@@ -34,7 +39,7 @@ public class SeriesApplication implements CommandLineRunner {
 //		DadosEpisodio dadosEpisodio = conversor.obterDados(json, DadosEpisodio.class);
 //		System.out.println(dadosEpisodio);
 
-		Principal principal = new Principal();
+		Principal principal = new Principal(repositorio);
 		principal.exibeMenu();
 
 //		List<DadosTemporada> temporadas = new ArrayList<>();
